@@ -5,54 +5,125 @@ const Employee = require('./lib/Employee');
 const Engineer = require('./lib/Engineer');
 const Manager = require('./lib/Manager');
 const Intern = require('./lib/Intern');
-const { S_IXGRP } = require('constants');
 const teamData = [];
 
 // Initialize a new Employee object
-const manager = new Manager();
-
-// Create an array of questions for user input
-const questions = [
-
-];
+const employee = new Employee();
 
 function createManager () {
-   
+    inquirer
+   .prompt([
+        
+        {
+            message: `What is the managers's name?`,
+            name: 'employeeName',
+        },
+        {
+            message: `What is the manager's ID?'`,
+            name: 'employeeID',
+        },
+        {
+            message: `What is the manager's email?`,
+            name: 'employeeEmail',
+        },
+        {
+            message: `What is the manager's office number?`,
+            name: 'officeNumber',
+        },
+    ])
+    .then((response) => {
+            const manager = new Manager();
+            manager.getRole();
+            manager.getOfficeNumber(response);
+            teamData.push(manager); 
+            addMember();
+    });
 }
 
-function createOther (person) {
- 
+function createOtherEng(person) {
+    inquirer
+    .prompt([
+        {
+            message: `What is the engineer's name?`,
+            name: 'employeeName',
+        },
+        {
+            message: `What is the engineer's ID?'`,
+            name: 'employeeID',
+        },
+        {
+            message: `What is the engineer's email?`,
+            name: 'employeeEmail',
+        },
+        {  
+        message: 'What is the engineers GitHub username?',
+        name: 'engineerGitHub',
+        },
+        
+    ])
+    .then((response) => {
+            const engineer = new Engineer();
+            engineer.getRole();
+        engineer.getGitHub(response);
+        teamData.push(engineer);
+            addMember();
+    });
+}
+
+function createOtherInt(person) {
+    inquirer
+    .prompt([
+     {
+            message: `What is the intern's name?`,
+            name: 'employeeName',
+        },
+        {
+            message: `What is the intern's ID?'`,
+            name: 'employeeID',
+        },
+        {
+            message: `What is the intern's email?`,
+            name: 'employeeEmail',
+        },   
+        { 
+            message: `What is the name of the intern's school?`,
+            name: 'internSchool',
+        },
+    ])
+    .then((response) => {
+        const intern = new Intern();
+        intern.getRole();
+        intern.getSchool(response);
+        teamData.push(intern);
+        addMember();
+    });
 }
 
 function addMember() {
-        inquirer
-        .prompt([
+    inquirer
+    .prompt([
         {
             message: 'What is type of team member would you like to add?',
             name: 'memberType',
             type: 'list',
             choices: ['Engineer', 'Intern', "I don't want to add anymore team members"]
         }])
-        .then((response) => {
-            if (response.memberType === "Engineer"){
-               teamData.push(response);
-               addMember();
-            } else if (response.memberType === "Intern"){
-                 teamData.push(response)
-                addMember();
-            } else {
-               console.log("\nCreating Team Chart.");
-               writeToFile(teamData);
-            }
-        });
+    .then((response) => {
+        if (response.memberType === "Engineer"){
+            teamData.push(response);
+            createOtherEng(person);
+        } else if (response.memberType === "Intern"){
+                teamData.push(response)
+            createOtherInt(person);
+        } else {
+            console.log("\nCreating Team Chart.");
+            writeToFile(teamData);
+        }
+    });
 } 
 
 // Write class objects to cards and output HTML
 function writeToFile(data) {
-    console.log(data);
-
-  
-
     const fileTop = (`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -93,13 +164,24 @@ function writeToFile(data) {
    
 const fileBottom = (`</div> </div> </main></body></html>`);
 
+function getIcon(emp){
+ for (let emp of data) {
+     if (emp.memberType === "Manager"){
+         return `<i class="fas fa-mug-hot"></i>`;
+     } else if (emp.memberType === "Engineer"){
+         return `<i class="fa fa-user" aria-hidden="true"></i>`;
+     } else {
+         return `<i class="fa fa-graduation-cap" aria-hidden="true"></i>`;
+     }
+ }     
+ 
 function loopData(person) {
     return `
         <div class="col-4">
                     <div class="card mb-3 border-info">
                         <h5 class="card-header bg-dark text-light">
                             <div>${person.name}</div>
-                            <small>${person.memberType}</small></h5>
+                            <small>${getIcon(emp)}${person.memberType}</small></h5>
                              <div class="card-body bg-info">
                             <ul class="list-group text-dark">
                                 <li class="list-group-item"><i class="fas fa-id-badge"></i> ID: <span>${person.memberType}</span></li>
@@ -113,18 +195,10 @@ function loopData(person) {
                 </div>
     `;
 }
-
-                            // <small><i class="fas fa-mug-hot"></i> Manager</small>
-                            // <small><i class="fa fa-user" aria-hidden="true"></i> Engineer</small>
-                            // <small><i class="fa fa-graduation-cap" aria-hidden="true"></i> Intern</small>
-                        
-                       
-
+                           
 const otherstuff = (`${data.map(loopData).join("")}`); 
       
 const printFile = (`${fileTop} ${otherstuff} ${fileBottom}`);  
-
-
     fs.writeFile('index.html', printFile, (err) =>
       err ? console.log(err) : console.log('Your portfolio was successfully created.')
     );
@@ -132,7 +206,7 @@ const printFile = (`${fileTop} ${otherstuff} ${fileBottom}`);
 }
 
 function init(){
-    addMember();
+    addManager();
 }
 
 init();
