@@ -10,7 +10,7 @@ const teamData = [];
 // Initialize a new Employee object
 const employee = new Employee();
 
-function createManager () {
+function createManager() {
     inquirer
    .prompt([
         
@@ -32,11 +32,11 @@ function createManager () {
         },
     ])
     .then((response) => {
-            const manager = new Manager();
-            manager.getRole();
-            manager.getOfficeNumber(response);
-            teamData.push(manager); 
-            addMember();
+        const manager = new Manager();
+        manager.getRole();
+        manager.getOfficeNumber(response);
+        teamData.push(manager); 
+        addMember();
     });
 }
 
@@ -62,11 +62,11 @@ function createOtherEng(person) {
         
     ])
     .then((response) => {
-            const engineer = new Engineer();
-            engineer.getRole();
+        const engineer = new Engineer(person);
+        engineer.getRole();
         engineer.getGitHub(response);
         teamData.push(engineer);
-            addMember();
+        addMember();
     });
 }
 
@@ -91,7 +91,7 @@ function createOtherInt(person) {
         },
     ])
     .then((response) => {
-        const intern = new Intern();
+        const intern = new Intern(person);
         intern.getRole();
         intern.getSchool(response);
         teamData.push(intern);
@@ -110,11 +110,9 @@ function addMember() {
         }])
     .then((response) => {
         if (response.memberType === "Engineer"){
-            teamData.push(response);
-            createOtherEng(person);
+            createOtherEng(response);
         } else if (response.memberType === "Intern"){
-                teamData.push(response)
-            createOtherInt(person);
+            createOtherInt(response);
         } else {
             console.log("\nCreating Team Chart.");
             writeToFile(teamData);
@@ -163,17 +161,6 @@ function writeToFile(data) {
     <main class="p-3"><div class="container"><div class="row justify-content-center">`);
    
 const fileBottom = (`</div> </div> </main></body></html>`);
-
-function getIcon(emp){
- for (let emp of data) {
-     if (emp.memberType === "Manager"){
-         return `<i class="fas fa-mug-hot"></i>`;
-     } else if (emp.memberType === "Engineer"){
-         return `<i class="fa fa-user" aria-hidden="true"></i>`;
-     } else {
-         return `<i class="fa fa-graduation-cap" aria-hidden="true"></i>`;
-     }
- }     
  
 function loopData(person) {
     return `
@@ -181,7 +168,7 @@ function loopData(person) {
                     <div class="card mb-3 border-info">
                         <h5 class="card-header bg-dark text-light">
                             <div>${person.name}</div>
-                            <small>${getIcon(emp)}${person.memberType}</small></h5>
+                            <small>${person.memberType}</small></h5>
                              <div class="card-body bg-info">
                             <ul class="list-group text-dark">
                                 <li class="list-group-item"><i class="fas fa-id-badge"></i> ID: <span>${person.memberType}</span></li>
@@ -206,7 +193,7 @@ const printFile = (`${fileTop} ${otherstuff} ${fileBottom}`);
 }
 
 function init(){
-    addManager();
+    createManager();
 }
 
 init();
